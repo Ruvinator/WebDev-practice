@@ -1,5 +1,15 @@
 body {
   font-family: 'Montserrat', sans-serif;
+  text-align: center;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 900;
+}
+
+.big-heading {
+  font-size: 3.5rem;
+  line-height: 1.5;
 }
 
 .container-fluid {
@@ -7,16 +17,20 @@ body {
   /* 3% to top/bottom and 15% to left/right */
 }
 
-#title {
+/* Sections */
+.colored-section {
   background-color: #ff4c68;
   color: #fff;
-  position: relative;
 }
 
-h1 {
-  font-size: 3.5rem;
-  font-weight: 900;
-  line-height: 1.5;
+.white-section {
+  background-color: #fff;
+  color: #000;
+}
+
+#title {
+  position: relative;
+  text-align: left;
 }
 
 /* Navigation Bar */
@@ -43,13 +57,11 @@ h1 {
   font-size: 1.2rem;
 }
 
-
 /* Download Buttons */
 .download-button {
   /* Four margin values: top, right, bottom, left */
   margin: 8% 3% 5% 0
 }
-
 
 /* Title Image */
 .title-image {
@@ -61,25 +73,18 @@ h1 {
 }
 
 /* Features */
-
 #features {
   padding: 7% 5%;
-  background-color: #fff;
   position: relative;
 }
 
-.feature-box {
-  text-align: center;
-}
-
-#features h3 {
+.price-breed {
   font-size: 1.5rem;
-  font-weight: 900;
 }
 
 #features p {
-  font-size: 0.9rem;
   color: #8f8f8f;
+  font-size: 0.9rem;
   padding: 0 15%;
 }
 
@@ -92,17 +97,9 @@ h1 {
   color: #ff4c68;
 }
 
-
 /* Testimonial Section */
-
-h2 {
-  font-weight: 900;
-}
-
 #testimonials {
-  text-align: center;
   background-color: #ef8172;
-  color: #fff;
 }
 
 .testimonial-image {
@@ -115,11 +112,8 @@ h2 {
   padding: 7% 5%;
 }
 
-
 /* Press Section */
-
 #press {
-  text-align: center;
   background-color: #ef8172;
   padding-bottom: 3%;
 }
@@ -129,9 +123,7 @@ h2 {
   margin: 20px 20px 50px;
 }
 
-
 /* Pricing Section */
-
 #pricing {
   padding: 100px;
   text-align: center;
@@ -141,13 +133,12 @@ h2 {
   padding: 3% 2%;
 }
 
-.card-header h3 {
-  font-weight: 900;
+.price-breed {
   font-size: 1.3rem;
 }
 
-.card-body h2 {
-  font-size: 2.7rem;
+.price-text {
+  font-size: 2.6rem;
   padding-bottom: 10px;
 }
 
@@ -165,19 +156,9 @@ h2 {
   }
 }
 
-
 /* Lower Action Section */
-
 #cta {
-  background-color: #ff4c68;
-  color: #fff;
-  text-align: center;
   padding: 8% 7% 0;
-}
-
-#cta h3 {
-  font-size: 3rem;
-  font-weight: 900;
 }
 
 #cta button {
@@ -185,9 +166,7 @@ h2 {
 }
 
 /* Footer Section */
-
 #footer {
-  text-align: center;
   padding: 7% 15%;
 }
 
