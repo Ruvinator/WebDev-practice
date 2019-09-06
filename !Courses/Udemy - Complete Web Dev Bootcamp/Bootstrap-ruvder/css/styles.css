@@ -57,7 +57,7 @@ h1 {
   transform: rotate(25deg);
   margin: 10% 0 0 20%;
   position: absolute;
-  right: 30%;
+  margin-right: 30%;
 }
 
 /* Features */
@@ -166,4 +166,35 @@ h2 {
 }
 
 
+/* Lower Action Section */
+
+#cta {
+  background-color: #ff4c68;
+  color: #fff;
+  text-align: center;
+  padding: 8% 7% 0;
+}
+
+#cta h3 {
+  font-size: 3rem;
+  font-weight: 900;
+}
+
+#cta button {
+  margin: 6% 3% 14% 0;
+}
+
 /* Footer Section */
+
+#footer {
+  text-align: center;
+  padding: 7% 15%;
+}
+
+.footer-icon {
+  margin: 10% 10px 2% 10px;
+}
+
+.footer-copyright {
+  color: #8f8f8f;
+}
