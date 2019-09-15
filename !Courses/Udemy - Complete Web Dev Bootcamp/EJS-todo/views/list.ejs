@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+  <meta charset="utf-8">
+  <title>To Do List</title>
+</head>
+
+<body>
+
+  <!-- Scriptlet tags (JS) are marked by < % scriptlet % > -->
+  <!-- Scriptlet only lets you use control flow JS (logic is in server) -->
+  <% if (kindOfDay === "Saturday" || kindOfDay === "Sunday") { %>
+  <!-- Variable received from server is marked by < % = var % > -->
+  <h1 style="color: purple">It's a <%= kindOfDay %>!</h1>
+  <% } else { %>
+  <h1 style="color: red">It's a <%= kindOfDay %>!</h1>
+  <% } %>
+
+</body>
+
+</html>
