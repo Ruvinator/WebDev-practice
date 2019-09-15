@@ -3,6 +3,8 @@ const bodyParser = require("body-parser");
 
 const app = express();
 
+let items = ["Buy Food", "Cook Food", "Eat Food"];  // Will store ToDo text inputs
+
 // EJS is set as the view engine of the Express server
 // EJS will by default look in 'views' folder for views to render
 app.set('view engine', 'ejs');
@@ -10,20 +12,32 @@ app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({
   extended: true
 }));
-
-var day = "";
-var days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+app.use(express.static("public"));
 
 // Get response
 app.get("/", function(req, res) {
 
-  var today = new Date();
-  day = days[today.getDay()];
-  console.log(today);
+  let today = new Date();
+  // Used to format the date
+  let options = {
+    weekday: "long",
+    day: "numeric",
+    month: "long"
+  };
+  let day = today.toLocaleDateString("en-US", options);
 
+  // IMRORTANT: Every time you call res.render() you must pass all variables
   res.render("list", {
-    kindOfDay: day
+    kindOfDay: day,
+    newListItem: items
   });
+});
+
+// Passing data from webpage back to server
+app.post("/", function(req, res) {
+  let item = req.body.todoInput;
+  items.push(item);
+  res.redirect("/");  // Redirecting instead of calling res.render() again
 });
 
 // Port listener
