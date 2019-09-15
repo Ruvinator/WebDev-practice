@@ -23,20 +23,31 @@ app.get("/", function(req, res) {
 // Post route to access data from user
 app.post("/", function(req, res) {
   var crypto = req.body.crypto;
-  var currency = req.body.currency;
-  var url = "https://apiv2.bitcoinaverage.com/indices/global/ticker/";
+  var fiat = req.body.currency;
+  var amount = req.body.amount;
+
+  // The options keys must directly match the request documentation
+  var options = {
+    url: "https://apiv2.bitcoinaverage.com/convert/global",
+    method: "GET",
+    qs: {
+      from: crypto,
+      to: fiat,
+      amount: amount
+    }
+  };
 
   // Make HTTP request using 'request' package
   // Data is stored in the 'body' variable of callback function
-  request(url + crypto + currency, function(error, response, body) {
+  request(options, function(error, response, body) {
     var data = JSON.parse(body);
-    var price = data.last;
+    var price = data.price;
 
-var currentDate = data.display_timestamp;
+    var currentDate = data.time;
 
     // res.write is used if you want to send multiple things
     res.write("<p>The current date is " + currentDate + "</p>");
-    res.write("<h1>The price of " + crypto + " is " + price.toFixed(2) + " " + currency + "</h1>");
+    res.write("<h1>The price of " + amount + " " + crypto + " is " + price + " " + fiat + "</h1>");
 
     // res.send is the last command that should be executed (only send once)
     res.send();
