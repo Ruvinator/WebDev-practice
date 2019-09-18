@@ -1,6 +1,7 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
+const _ = require("lodash");
 
 // Can add custom modules (useful for code refactoring)
 // Will have access to anything we have bound with module.exports
@@ -17,10 +18,13 @@ app.use(bodyParser.urlencoded({
 }));
 app.use(express.static("public"));
 
+
 // --------------------------------- Database ----------------------------------
+
 // Connect to database
 mongoose.connect("mongodb://localhost:27017/todolistDB");
 
+// Schema for todo items
 const todoSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -43,7 +47,19 @@ const todo3 = new Todo({
   name: "Eat food"
 });
 
+const defaultItems = [todo1, todo2, todo3];
+
+// Schema for todo lists
+const listSchema = new mongoose.Schema({
+  name: String,
+  todos: [todoSchema]
+});
+
+const List = mongoose.model("List", listSchema);
+
+
 // --------------------------------- Browser -----------------------------------
+
 // Get response for home page
 app.get("/", function(req, res) {
 
@@ -56,7 +72,7 @@ app.get("/", function(req, res) {
       console.log(err);
     } else if (0 === todoItems.length) {
       // Insert default documents to collection only if database is empty
-      Todo.insertMany([todo1, todo2, todo3], function(err) {
+      Todo.insertMany(defaultItems, function(err) {
         if (err) {
           console.log(err);
         } else {
@@ -78,26 +94,86 @@ app.get("/about", function(req, res) {
   res.render("about");
 });
 
+app.get("/:listName", function(req, res) {
+  const customListName = _.capitalize(req.params.listName); // Name of user entered list
+
+  List.findOne({
+    name: customListName
+  }, function(err, foundList) {
+    if (!err) {
+      if (!foundList) {
+        const list = new List({
+          name: customListName,
+          todos: defaultItems // populate new list with default items
+        });
+
+        list.save();
+        res.redirect("/" + customListName);
+      } else {
+        res.render("list", {
+          listTitle: foundList.name,
+          newListItems: foundList.todos
+        });
+      }
+    }
+  });
+});
+
 // Passing data from webpage back to server
 app.post("/", function(req, res) {
   const itemName = req.body.todoInput;
+  const pageName = req.body.list;
+
   const newTodoItem = new Todo({
     name: itemName
   });
-  newTodoItem.save();  // Saves in collection of todo items
-  res.redirect("/");  // Refresh page to show new items
+  if (pageName === date.getDay() + ",") {
+    // Default list
+    newTodoItem.save(); // Saves in collection of todo items
+    res.redirect("/"); // Refresh page to show new items
+  } else {
+    // Custom list
+    List.findOne({
+      name: pageName
+    }, function(err, foundList) {
+      foundList.todos.push(newTodoItem);
+      foundList.save();
+      res.redirect("/" + pageName);
+    });
+  }
 });
 
 app.post("/delete", function(req, res) {
   const checkedItemId = req.body.checkbox;
+  const listName = req.body.listName;
 
-  // Remove item that is checked off
-  Todo.findByIdAndRemove(checkedItemId, function(err) {
-    if (err) {
-      console.log(err);
-    }
-  });
-  res.redirect("/");  // Refresh page to show updated items
+console.log(listName);
+  if (listName === date.getDate()) {
+    // Default list
+    // Remove item that is checked off
+    Todo.findByIdAndRemove(checkedItemId, function(err) {
+      if (err) {
+        console.log(err);
+      }
+    });
+    res.redirect("/"); // Refresh page to show updated items
+  } else {
+    // Custom list
+    // Deleting todo item from todos array in list
+    List.findOneAndUpdate({
+      name: listName
+    }, {
+      $pull: {
+        todos: {
+          _id: checkedItemId
+        }
+      }
+    }, function(err, foundList) {
+      if (!err) {
+        res.redirect("/" + listName);
+      }
+    });
+  }
 });
 
 // Port listener
