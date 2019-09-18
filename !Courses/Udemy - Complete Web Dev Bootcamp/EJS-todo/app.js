@@ -1,15 +1,12 @@
 const express = require("express");
 const bodyParser = require("body-parser");
+const mongoose = require("mongoose");
 
 // Can add custom modules (useful for code refactoring)
 // Will have access to anything we have bound with module.exports
 const date = require(__dirname + "/date.js");
 
 const app = express();
-
-// const array: can push new items but can't reassign entire array
-const items = ["Buy Food", "Cook Food", "Eat Food"]; // Will store ToDo text inputs
-const workItems = [];
 
 // EJS is set as the view engine of the Express server
 // EJS will by default look in 'views' folder for views to render
@@ -20,24 +17,60 @@ app.use(bodyParser.urlencoded({
 }));
 app.use(express.static("public"));
 
+// --------------------------------- Database ----------------------------------
+// Connect to database
+mongoose.connect("mongodb://localhost:27017/todolistDB");
+
+const todoSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: [1]
+  }
+});
+
+const Todo = mongoose.model("Todo", todoSchema);
+
+// Documents for default todos
+const todo1 = new Todo({
+  name: "Buy food"
+});
+
+const todo2 = new Todo({
+  name: "Cook food"
+});
+
+const todo3 = new Todo({
+  name: "Eat food"
+});
+
+// --------------------------------- Browser -----------------------------------
 // Get response for home page
 app.get("/", function(req, res) {
 
   // Calling function bound to constant date (exports.getDate)
   const todayDate = date.getDate();
 
-  // Every time you call res.render() you must pass all variables
-  res.render("list", {
-    listTitle: todayDate,
-    newListItem: items
-  });
-});
-
-// Get response for /work page
-app.get("/work", function(req, res) {
-  res.render("list", {
-    listTitle: "Work List",
-    newListItem: workItems
+  // Access todos from database when home page is accessed
+  Todo.find({}, function(err, todoItems) {
+    if (err) {
+      console.log(err);
+    } else if (0 === todoItems.length) {
+      // Insert default documents to collection only if database is empty
+      Todo.insertMany([todo1, todo2, todo3], function(err) {
+        if (err) {
+          console.log(err);
+        } else {
+          console.log("Successfully saved all todo todos to todolistDB");
+        }
+      });
+      // Refresh page after inserting items
+      res.redirect("/");
+    } else {
+      res.render("list", {
+        listTitle: todayDate,
+        newListItems: todoItems
+      });
+    }
   });
 });
 
@@ -47,15 +80,24 @@ app.get("/about", function(req, res) {
 
 // Passing data from webpage back to server
 app.post("/", function(req, res) {
-  const item = req.body.todoInput;
+  const itemName = req.body.todoInput;
+  const newTodoItem = new Todo({
+    name: itemName
+  });
+  newTodoItem.save();  // Saves in collection of todo items
+  res.redirect("/");  // Refresh page to show new items
+});
 
-  if (req.body.list === "Work") {
-    workItems.push(item);
-    res.redirect("/work");
-  } else {
-    items.push(item);
-    res.redirect("/"); // Redirecting instead of calling res.render() again
-  }
+app.post("/delete", function(req, res) {
+  const checkedItemId = req.body.checkbox;
+
+  // Remove item that is checked off
+  Todo.findByIdAndRemove(checkedItemId, function(err) {
+    if (err) {
+      console.log(err);
+    }
+  });
+  res.redirect("/");  // Refresh page to show updated items
 });
 
 // Port listener
