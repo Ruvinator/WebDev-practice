@@ -5,8 +5,9 @@ const ejs = require("ejs");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const encrypt = require("mongoose-encryption");
-const bcrypt = require("bcrypt");
-const saltRounds = 10;
+const session = require("express-session");
+const passport = require("passport");
+const passportLocalMongoose = require("passport-local-mongoose");
 
 const app = express();
 
@@ -16,9 +17,21 @@ app.use(bodyParser.urlencoded({
   extended: true
 }));
 
+// Session setup must be placed here (before DB)
+app.use(session({
+  secret: "Our little secret.",
+  resave: false,
+  saveUninitialized: true
+}));
+
+// Passport setup right below session setup
+app.use(passport.initialize());
+app.use(passport.session()); // Use passport to deal with sessions
+
 mongoose.connect("mongodb://localhost:27017/userDB", {
   useNewUrlParser: true
 });
+mongoose.set("useCreateIndex", true);
 
 const userSchema = new mongoose.Schema({
   email: String,
@@ -26,20 +39,18 @@ const userSchema = new mongoose.Schema({
 });
 
 // Add plugin to mongoose schema before defining model
-// Mongoose will automatically be encrypting and decrypting on save and find
-// If secret is found, anything can easily be decrypted
-userSchema.plugin(encrypt, {
-  secret: process.env.SECRET, // calling .env variable
-  encryptedFields: ["password"] // want to search email so don't encrypt it
-});
+// Mongoose will automatically use passport to hash/salt passwords
+userSchema.plugin(passportLocalMongoose);
 
 const User = new mongoose.model("User", userSchema);
 
-// ----------------------- LEVEL 1 AUTHENTICATION ------------------------------
 
-// Issue: we can see the user's password in plain text.
-// Any employee can look through the database and find out anyone's password.
-// A hacker would also have a field day.
+// Serialize: create cookie with authentication info
+// Deserialize: destroy cookie with authentication info
+passport.use(User.createStrategy());
+
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
 
 app.get("/", function(req, res) {
   res.render("home");
@@ -53,44 +64,57 @@ app.get("/register", function(req, res) {
   res.render("register");
 });
 
+// creating GET request for secrets since using sessions
+app.get("/secrets", function(req, res) {
+  // Make sure that user is authenticated
+  // If they are not, redirect to login page
+  if (req.isAuthenticated()) {
+    res.render("secrets");
+  } else {
+    res.redirect("/login");
+  }
+});
+
+app.get("/logout", function(req, res) {
+  req.logout();  // Deauthenticate user
+  res.redirect("/");
+});
+
 app.post("/register", function(req, res) {
-
-  bcrypt.hash(req.body.password, saltRounds, function(err, hash) {
-    const newUser = new User({
-      email: req.body.username,
-      password: hash // Hash password upon storage
-    });
-  });
-
-  newUser.save(function(err) {
-    if (!err) {
-      res.render("secrets");
-    } else {
+  // Using passport-local-mongoose
+  User.register({
+    username: req.body.username
+  }, req.body.password, function(err, user) {
+    if (err) {
       console.log(err);
+      res.redirect("/register");
+    } else {
+      passport.authenticate("local")(req, res, function() {
+        // Only triggers if authentication is successful (cookie with session is setup)
+        // Since they can only get here by being authenticated, we can redirect
+        // the user to the secrets route rather than calling res.render()
+        res.redirect("/secrets");
+      });
     }
-  });
+  })
 });
 
 app.post("/login", function(req, res) {
-  const username = req.body.username;
-  const password = req.body.password; // Hash login password to compare
+  const user = new User({
+    username: req.body.username,
+    password: res.body.password
+  });
 
-  User.findOne({
-    email: username
-  }, function(err, foundUser) {
+  // from passport
+  req.login(user, function(err) {
     if (err) {
       console.log(err);
     } else {
-      if (foundUser) {
-        // Use bcrypt to compare hashed passwords (with 10 rounds of salting)
-        bcrypt.compare(req.body.password, foundUser.password, function(err, result) {
-          if (result) {
-            res.render("secrets");
-          }
-        });
-      }
+      passport.authenticate("local")(req, res, function() {
+        res.redirect("/secrets");
+      });
     }
-  })
+  });
 });
 
 app.listen(3000, function() {
