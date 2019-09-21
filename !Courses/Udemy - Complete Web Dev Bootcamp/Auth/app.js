@@ -1,9 +1,11 @@
 //jshint esversion:6
+require('dotenv').config();  // stores environment variables in .env file
 const express = require("express");
 const ejs = require("ejs");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const encrypt = require("mongoose-encryption");
+const md5 = require('md5');
 
 const app = express();
 
@@ -24,9 +26,9 @@ const userSchema = new mongoose.Schema({
 
 // Add plugin to mongoose schema before defining model
 // Mongoose will automatically be encrypting and decrypting on save and find
-const secret = "Thisisourlittlesecret.";
+// If secret is found, anything can easily be decrypted
 userSchema.plugin(encrypt, {
-  secret: secret,
+  secret: process.env.SECRET,  // calling .env variable
   encryptedFields: ["password"]  // want to search email so don't encrypt it
 });
 
@@ -53,7 +55,7 @@ app.get("/register", function(req, res) {
 app.post("/register", function(req, res) {
   const newUser = new User({
     email: req.body.username,
-    password: req.body.password
+    password: md5(req.body.password)  // Hash password upon storage
   });
 
   newUser.save(function(err) {
@@ -67,7 +69,7 @@ app.post("/register", function(req, res) {
 
 app.post("/login", function(req, res) {
   const username = req.body.username;
-  const password = req.body.password;
+  const password = md5(req.body.password);  // Hash login password to compare
 
   User.findOne({
     email: username
