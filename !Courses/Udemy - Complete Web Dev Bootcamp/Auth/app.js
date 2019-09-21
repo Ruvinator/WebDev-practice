@@ -1,11 +1,12 @@
 //jshint esversion:6
-require('dotenv').config();  // stores environment variables in .env file
+require('dotenv').config(); // stores environment variables in .env file
 const express = require("express");
 const ejs = require("ejs");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const encrypt = require("mongoose-encryption");
-const md5 = require('md5');
+const bcrypt = require("bcrypt");
+const saltRounds = 10;
 
 const app = express();
 
@@ -28,8 +29,8 @@ const userSchema = new mongoose.Schema({
 // Mongoose will automatically be encrypting and decrypting on save and find
 // If secret is found, anything can easily be decrypted
 userSchema.plugin(encrypt, {
-  secret: process.env.SECRET,  // calling .env variable
-  encryptedFields: ["password"]  // want to search email so don't encrypt it
+  secret: process.env.SECRET, // calling .env variable
+  encryptedFields: ["password"] // want to search email so don't encrypt it
 });
 
 const User = new mongoose.model("User", userSchema);
@@ -53,9 +54,12 @@ app.get("/register", function(req, res) {
 });
 
 app.post("/register", function(req, res) {
-  const newUser = new User({
-    email: req.body.username,
-    password: md5(req.body.password)  // Hash password upon storage
+
+  bcrypt.hash(req.body.password, saltRounds, function(err, hash) {
+    const newUser = new User({
+      email: req.body.username,
+      password: hash // Hash password upon storage
+    });
   });
 
   newUser.save(function(err) {
@@ -69,7 +73,7 @@ app.post("/register", function(req, res) {
 
 app.post("/login", function(req, res) {
   const username = req.body.username;
-  const password = md5(req.body.password);  // Hash login password to compare
+  const password = req.body.password; // Hash login password to compare
 
   User.findOne({
     email: username
@@ -78,9 +82,12 @@ app.post("/login", function(req, res) {
       console.log(err);
     } else {
       if (foundUser) {
-        if (foundUser.password === password) {
-          res.render("secrets");
-        }
+        // Use bcrypt to compare hashed passwords (with 10 rounds of salting)
+        bcrypt.compare(req.body.password, foundUser.password, function(err, result) {
+          if (result) {
+            res.render("secrets");
+          }
+        });
       }
     }
   })
