@@ -4,5 +4,6 @@ import './index.css';
 import App from './App';
 import registerServiceWorker from './registerServiceWorker';
 
+// Generally only render one component (the main app, usually called App)
 ReactDOM.render(<App />, document.getElementById('root'));
 registerServiceWorker();
