@@ -1,0 +1,13 @@
+.userOutput {
+    background-color: #CCCCFF;
+    border: 5px solid #222222;
+    padding: 1em;
+    margin-bottom: 10px;
+}
+
+.userName {
+    color: #222222;
+    overflow-wrap: break-word;
+    font-weight: 900;
+    font-size: 1.2em;
+}
