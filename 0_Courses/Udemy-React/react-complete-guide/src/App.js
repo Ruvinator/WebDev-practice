@@ -5,35 +5,36 @@ import Person from './Person/Person'
 class App extends Component {
   state = {
     persons: [
-      { name: "Igor", age: 25 },
-      { name: "Bilz", age: 28 },
-      { name: "Dilz", age: 26 }
-    ]
+      { id: 'qwer', name: "Igor", age: 25 },
+      { id: 'asdf', name: "Bilz", age: 28 },
+      { id: 'zxcv', name: "Dilz", age: 26 }
+    ],
+    showPersons: false
   }
 
-  // Handlers are added to names of functions assigned as event handlers
-  switchNameHandler = () => {
-    // DON'T DO THIS: this.state.persons[0].name="Igorillian";
-
-    // Updates values matching property names
-    // In this case, "Igor" will be updated to "Igorillian" and "Bilz" age to 21
-    this.setState({
-      persons: [
-        { name: "Igorillian", age: 25 },
-        { name: "Bilz", age: 21 },
-        { name: "Dilz", age: 26 }
-      ]
+  nameChangedHandler = (event, id) => {
+    const personIndex = this.state.persons.findIndex(p => {
+      return p.id === id;
     });
+
+    // Spreading to copy properties/elements
+    const person = { ...this.state.persons[personIndex] };
+    person.name = event.target.value;
+    const persons = [...this.state.persons];
+    persons[personIndex] = person;
+
+    this.setState({ persons: persons });
   }
 
-  nameChangedHandler = (event) => {
-    this.setState({
-      persons: [
-        { name: "Igor", age: 25 },
-        { name: event.target.value, age: 31 },  // Gets value we typed into input field
-        { name: "Dilz", age: 26 }
-      ]
-    });
+  deletePersonHandler = (personIndex) => {
+    const persons = [...this.state.persons];  // Copy array elems using spread (don't pass as reference)
+    persons.splice(personIndex, 1);
+    this.setState({ persons: persons });
+  }
+
+  togglePersonsHandler = () => {
+    this.showPersons = !this.showPersons;
+    this.setState({ showPersons: this.showPersons });
   }
 
   // Component must have render method to render/return HTML to DOM
@@ -48,6 +49,27 @@ class App extends Component {
       cursor: "pointer"
     };
 
+    // Logic below to toggle whether persons will be visible
+    let persons = null;
+
+    if (this.state.showPersons) {
+      persons = (
+        <div>
+          {/* Use map to apply function to each array element. Also have access to index */}
+          {
+            this.state.persons.map((person, index) => {
+              return <Person
+                click={this.deletePersonHandler}
+                name={person.name}
+                age={person.age}
+                key={person.id}
+                change={(event) => this.nameChangedHandler(event, person.id)} />  // Key is used to identify elements (efficiency)
+            })
+          }
+        </div>
+      );
+    }
+
     return (
       // Code below is not HTML, it's JSX (syntactical sugar)
       // Compiled to code shown below
@@ -58,19 +80,10 @@ class App extends Component {
         {/* Call handler function when button is clicked */}
         <button
           style={style}
-          onClick={this.switchNameHandler}>Switch Name</button>
+          onClick={this.togglePersonsHandler}>Switch Name</button>
 
-        {/* Import custom component */}
-        <Person
-          name={this.state.persons[0].name}
-          age={this.state.persons[0].age} />
-        <Person
-          name={this.state.persons[1].name}
-          age={this.state.persons[1].age}
-          changed={this.nameChangedHandler} />
-        <Person
-          name={this.state.persons[2].name}
-          age={this.state.persons[2].age} />
+        {/* Outputting persons variable from below (with visibility logic) */}
+        {persons}
       </div>
     );
 
