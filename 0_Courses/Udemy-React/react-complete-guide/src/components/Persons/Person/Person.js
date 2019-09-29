@@ -10,7 +10,7 @@ const person = (props) => {
             <p onClick={props.click}>I'm {props.name} and I am {props.age} years old!</p>
             <p>{props.children}</p>
             {/* Allows us to change name dynamically and check current state (two-way binding) */}
-            <input type="text" onChange={props.change} value={props.name}></input>
+            <input type="text" onChange={props.changed} value={props.name}></input>
         </div>
     );
 
