@@ -1,5 +1,5 @@
 import React from 'react';
-import styles from './Person.module.css';
+import styles from './Person.css';
 
 // Instead of making class extending Component, can make a regular function
 const person = (props) => {
