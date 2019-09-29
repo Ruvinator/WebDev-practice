@@ -4,6 +4,7 @@ import Cockpit from '../components/Cockpit/Cockpit';
 import styles from './App.css';
 
 class App extends Component {
+
   state = {
     persons: [
       { id: 'qwer', name: "Igor", age: 25 },
@@ -56,7 +57,8 @@ class App extends Component {
       <div className={styles.App}>  {/* Refers to CSS class and applies its styles */}
 
         <Cockpit
-          persons={this.state.persons}
+          title={this.props.appTitle}
+          personsLength={this.state.persons.length}
           showPersons={this.state.showPersons}
           buttonPressed={this.togglePersonsHandler}
         />
