@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import './App.css';
 import Person from './Person/Person'
+import styles from './App.module.css';
 
 class App extends Component {
   state = {
@@ -42,7 +42,8 @@ class App extends Component {
     // Can add inline styles
     // CSS 
     const style = {
-      backgroundColor: "white",
+      backgroundColor: "green",
+      color: "white",
       font: "inherit",
       border: "1px solid blue",
       padding: "8px",
@@ -68,23 +69,36 @@ class App extends Component {
           }
         </div>
       );
+
+      // Dynamically changing background color to red when entries are visible
+      style.backgroundColor = "red";
+    }
+
+    // Define classes for dynamic assignment
+    const classes = [];
+
+    if (this.state.persons.length <= 2) {
+      classes.push( styles.red );
+    }
+    if (this.state.persons.length <= 1) {
+      classes.push( styles.bold );
     }
 
     return (
-      // Code below is not HTML, it's JSX (syntactical sugar)
-      // Compiled to code shown below
-      <div className="App">
-        <h1>Hi, I'm a react app!</h1>
-        <p>This is really working.</p>
+        // Code below is not HTML, it's JSX (syntactical sugar)
+        // Compiled to code shown below
+        <div className={styles.App}>  {/* Refers to CSS class and applies its styles */}
+          <h1>Hi, I'm a react app!</h1>
+          <p className={classes.join(" ")}>This is really working.</p>
 
-        {/* Call handler function when button is clicked */}
-        <button
-          style={style}
-          onClick={this.togglePersonsHandler}>Switch Name</button>
+          {/* Call handler function when button is clicked */}
+          <button
+            style={style}
+            onClick={this.togglePersonsHandler}>Switch Name</button>
 
-        {/* Outputting persons variable from below (with visibility logic) */}
-        {persons}
-      </div>
+          {/* Outputting persons variable from below (with visibility logic) */}
+          {persons}
+        </div>
     );
 
     // Code above with explicit HTML is same as code below using createElement()
