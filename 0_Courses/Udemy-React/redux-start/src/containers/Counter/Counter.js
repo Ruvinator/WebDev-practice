@@ -38,9 +38,9 @@ class Counter extends Component {
                 <CounterControl label="Decrement" clicked={this.props.onDecrementCounter}  />
                 <CounterControl label="Add 5" clicked={this.props.onAddCounter}  />
                 <CounterControl label="Subtract 5" clicked={this.props.onSubtractCounter}  />
-                <button onClick={this.props.onStoreResult}>Store Result</button>
+                <button onClick={() => this.props.onStoreResult(this.props.ctr)}>Store Result</button>
                 <ul>
-                    {this.props.storedResults.map(strResult => {
+                    {this.props.res.map(strResult => {
                         return <li key={strResult.id} onClick={() => this.props.onDeleteResult(strResult.id)}>{strResult.value}</li>
                     })}
                 </ul>
@@ -56,21 +56,22 @@ class Counter extends Component {
 // Accesses global (redux) state for properties this component is interested in
 const mapStateToProps = state => {
     return {
-        ctr: state.counter,
-        storedResults: state.results
+        // Accessing properties from multiple reducers
+        ctr: state.counterReducer.counter,
+        res: state.resultReducer.results
     };
 };
 
 // Actions to dispatch:
 const mapDispatchToProps = dispatch => {
     return {
-        onIncrementCounter: ()   => dispatch({type: actionTypes.INCREMENT}),
-        onDecrementCounter: ()   => dispatch({type: actionTypes.DECREMENT}),
+        onIncrementCounter:  () => dispatch({type: actionTypes.INCREMENT}),
+        onDecrementCounter:  () => dispatch({type: actionTypes.DECREMENT}),
         // Can add any properties (here `value`) and connect to object in this file
-        onAddCounter:       ()   => dispatch({type: actionTypes.ADD, value: 5}),
-        onSubtractCounter:  ()   => dispatch({type: actionTypes.SUBTRACT, value: 5}),
-        onStoreResult:      ()   => dispatch({type: actionTypes.STORE_RESULT}),
-        onDeleteResult:     (id) => dispatch({type: actionTypes.DELETE_RESULT, resultElementId: id})
+        onAddCounter:        () => dispatch({type: actionTypes.ADD, value: 5}),
+        onSubtractCounter:   () => dispatch({type: actionTypes.SUBTRACT, value: 5}),
+        onStoreResult: (result) => dispatch({type: actionTypes.STORE_RESULT, res: result}),
+        onDeleteResult:    (id) => dispatch({type: actionTypes.DELETE_RESULT, resultElementId: id})
     };
 };
 
