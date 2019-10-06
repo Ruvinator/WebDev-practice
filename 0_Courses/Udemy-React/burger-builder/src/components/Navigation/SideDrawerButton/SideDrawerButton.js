@@ -2,7 +2,11 @@ import React from 'react';
 import styles from './SideDrawerButton.module.css';
 
 const sideDrawerButton = props => (
-    <button className={styles.SideDrawerButton} onClick={props.clicked}>MENU</button>
+    <div className={styles.SideDrawerButton} onClick={props.clicked}>
+        <div></div>
+        <div></div>
+        <div></div>
+    </div>
 );
 
 export default sideDrawerButton;

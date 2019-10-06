@@ -1,10 +1,24 @@
 .SideDrawerButton {
-    background-color: white;
-    border: 0px;
-    padding: 15px;
+    width: 40px;
     height: 100%;
+    display: flex;
+    flex-flow: column;
+    justify-content: space-around;
+    align-items: center;
+    padding: 10px 0;
     box-sizing: border-box;
-    border-radius: 5px;
-    box-shadow: 0px;
-    font-weight: bold;
+    cursor: pointer;
+}
+
+.SideDrawerButton div {
+    width: 90%;
+    height: 3px;
+    margin: 5px 0;
+    background-color: white;
+}
+
+@media (min-width: 500px) {
+    .SideDrawerButton {
+        display: none;
+    }
 }
