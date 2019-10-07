@@ -11,5 +11,6 @@ export {
 
 export {
     storeResult,
+    storeResultSucceed,
     deleteResult
 } from './result';

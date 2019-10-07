@@ -1,22 +1,19 @@
 import * as actionTypes from './actionTypes';
 
-// SYNCHRONOUS action creator
-export const saveResult = result => {
+// Calls saga
+export const storeResult = result => {
     return {
-        type: actionTypes.STORE_RESULT,
-        res: result
+        type: actionTypes.INITIATE_STORE_RESULT,
+        res: result,
+        expirationTime: 2000
     };
 };
 
-// ASYNCHRONOUS counterpart which calls the synchronous action creator
-export const storeResult = result => {
-    // Have access to dispatch here due to thunk middleware
-    return dispatch => {
-        // Simulating asynchronous info storage (2 second gap)
-        setTimeout(() => {
-            // Executing action creator as function and pass in payload
-            dispatch(saveResult(result))
-        }, 2000);
+// Is called by saga
+export const storeResultSucceed = action => {
+    return {
+        type: actionTypes.STORE_RESULT,
+        res: action.res
     };
 };
 
