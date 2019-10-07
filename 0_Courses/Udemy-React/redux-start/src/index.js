@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { createStore, combineReducers, applyMiddleware, compose } from 'redux';
 import { Provider } from 'react-redux';
+import thunk from 'redux-thunk';
 
 import './index.css';
 import App from './App';
@@ -41,7 +42,8 @@ const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 // Store created right when application launches; this is a good place
 // Reducer is created in separate file and included here
 // compose combines multiple enhancers (middleware)
-const store = createStore(rootReducer, composeEnhancers(applyMiddleware(logger)));
+// thunk is added for asynchronous handling (already middleware)
+const store = createStore(rootReducer, composeEnhancers(applyMiddleware(logger, thunk)));
 
 // Store is connected to React app using Provider and input store argument
 ReactDOM.render(<Provider store={store}><App /></Provider>, document.getElementById('root'));
